@@ -1,0 +1,4 @@
+baseURL = 'https://0x000000db.github.io/'
+languageCode = 'en-us'
+title = 'Another Blog'
+theme="m10c"
