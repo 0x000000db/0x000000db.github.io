@@ -1,7 +1,7 @@
 ---
 title: "Why does shared_ptr sometimes lock?"
 date: 2023-07-28T16:08:17+01:00
-draft: true
+draft: false
 slug: why-does-shared-ptr-sometimes-lock
 ---
 # Introduction
