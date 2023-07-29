@@ -1,7 +1,7 @@
 baseURL = 'https://0x000000db.github.io/'
 languageCode = 'en-us'
 title = 'Blog'
-
+publishDir = "docs"
 theme="m10c"
 [params]
     avatar="image.png"
