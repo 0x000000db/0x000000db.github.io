@@ -9,7 +9,6 @@ features = [
   "social icons",
   "editable colors"
 ]
-
 [author]
   name = "vaga"
   homepage = "https://vaga.io"

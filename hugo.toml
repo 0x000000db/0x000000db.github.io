@@ -1,4 +1,8 @@
 baseURL = 'https://0x000000db.github.io/'
 languageCode = 'en-us'
-title = 'Another Blog'
+title = 'Blog'
+
 theme="m10c"
+[params]
+    avatar="image.png"
+    description="Some deep dives on interesting topics"
