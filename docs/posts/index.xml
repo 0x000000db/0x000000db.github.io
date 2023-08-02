@@ -8,6 +8,15 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 28 Jul 2023 16:08:17 +0100</lastBuildDate><atom:link href="https://0x000000db.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Crash when using `shared_from_this` when not declared public inheritance</title>
+      <link>https://0x000000db.github.io/posts/why-does-shared-from-this-crash-with-private-inheritance/</link>
+      <pubDate>Fri, 28 Jul 2023 16:08:17 +0100</pubDate>
+      
+      <guid>https://0x000000db.github.io/posts/why-does-shared-from-this-crash-with-private-inheritance/</guid>
+      <description>Introduction I made a simple mistake of inheriting std::enable_shared_from_this&amp;lt;T&amp;gt; but not specifying the inheritance type. But using shared_from_this results in a crash, why is that? I&amp;rsquo;d like to point out that since it does not work at all it&amp;rsquo;s most likely not really going to pop up during production and more likely confusion during development, however it&amp;rsquo;s still interesting, let&amp;rsquo;s delve. I&amp;rsquo;ve noticed this both on Ubuntu and Mac so far.</description>
+    </item>
+    
+    <item>
       <title>Why does shared_ptr sometimes lock?</title>
       <link>https://0x000000db.github.io/posts/why-does-shared-ptr-sometimes-lock/</link>
       <pubDate>Fri, 28 Jul 2023 16:08:17 +0100</pubDate>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Crash when using `shared_from_this` when not declared public inheritance // Blog</title>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="generator" content="Hugo 0.115.4">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="John Doe" />
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="/css/main.min.3c3c186cd62e563ad6e2f00a89dbee656ab912d1d46f856b5605dd0232521e2a.css" />
+
+    
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Crash when using `shared_from_this` when not declared public inheritance"/>
+<meta name="twitter:description" content="Introduction I made a simple mistake of inheriting std::enable_shared_from_this&lt;T&gt; but not specifying the inheritance type. But using shared_from_this results in a crash, why is that? I&rsquo;d like to point out that since it does not work at all it&rsquo;s most likely not really going to pop up during production and more likely confusion during development, however it&rsquo;s still interesting, let&rsquo;s delve. I&rsquo;ve noticed this both on Ubuntu and Mac so far."/>
+
+    <meta property="og:title" content="Crash when using `shared_from_this` when not declared public inheritance" />
+<meta property="og:description" content="Introduction I made a simple mistake of inheriting std::enable_shared_from_this&lt;T&gt; but not specifying the inheritance type. But using shared_from_this results in a crash, why is that? I&rsquo;d like to point out that since it does not work at all it&rsquo;s most likely not really going to pop up during production and more likely confusion during development, however it&rsquo;s still interesting, let&rsquo;s delve. I&rsquo;ve noticed this both on Ubuntu and Mac so far." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://0x000000db.github.io/posts/why-does-shared-from-this-crash-with-private-inheritance/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-07-28T16:08:17+01:00" />
+<meta property="article:modified_time" content="2023-07-28T16:08:17+01:00" />
+
+
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="https://0x000000db.github.io/"><img class="app-header-avatar" src="/image.png" alt="John Doe" /></a>
+      <span class="app-header-title">Blog</span>
+      <p>Some deep dives on interesting topics</p>
+    </header>
+    <main class="app-container">
+      
+  <article class="post">
+    <header class="post-header">
+      <h1 class ="post-title">Crash when using `shared_from_this` when not declared public inheritance</h1>
+      <div class="post-meta">
+        <div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar">
+  <title>calendar</title>
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+</svg>
+          Jul 28, 2023
+        </div>
+        <div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock">
+  <title>clock</title>
+  <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+</svg>
+          2 min read
+        </div>
+      </div>
+    </header>
+    <div class="post-content">
+      <h1 id="introduction">Introduction</h1>
+<p>I made a simple mistake of inheriting <code>std::enable_shared_from_this&lt;T&gt;</code> but not specifying the inheritance type. But using shared_from_this results in a crash, why is that? I&rsquo;d like to point out that since it does not work at all it&rsquo;s most likely not really going to pop up during production and more likely confusion during development, however it&rsquo;s still interesting, let&rsquo;s delve. I&rsquo;ve noticed this both on Ubuntu and Mac so far. Calling the method test on the following class is enough to reproduce:</p>
+<pre tabindex="0"><code>struct Cls : std::enable_shared_from_this&lt;Cls&gt; {
+public:
+    void test() {
+        auto self = shared_from_this();
+    }
+};
+</code></pre><p>The error is <code>bad_weak_ptr</code> which is typically something you see when mishandling shared_ptr and the object had actually been destroyed.</p>
+<h1 id="code-dive">Code dive</h1>
+<p>We can look to the gcc libc++ source code for further information, which can be found (here)[https://github.com/gcc-mirror/gcc/blob/b2cfe5233e682fc04a9b6fc91f3d30685515630b/libstdc%2B%2B-v3/include/bits/shared_ptr.h#L919]. We can see that internally, this class keeps a weak_ptr to itself (<code>_M_weak_this</code>), but why would changing inheritance type break this? We can theorize that since it is broken using private inheritance that it relys on a public method (on your class) being called and it seems plausible given the constructors do not appear to set anything. So what does <code>shared_from_this</code> do? It appears that the functionality is enabled by an external partner, we can see a suspect in <code>shared_ptr_base</code></p>
+<pre tabindex="0"><code>      template&lt;typename _Yp, typename _Yp2 = typename remove_cv&lt;_Yp&gt;::type&gt;
+	typename enable_if&lt;__has_esft_base&lt;_Yp2&gt;::value&gt;::type
+	_M_enable_shared_from_this_with(_Yp* __p) noexcept
+	{
+	  if (auto __base = __enable_shared_from_this_base(_M_refcount, __p))
+	    __base-&gt;_M_weak_assign(const_cast&lt;_Yp2*&gt;(__p), _M_refcount);
+	}
+</code></pre><p>It appears that the <code>enable_shared_from_this::_M_weak_this</code> is assigned here, perhaps this code was never run due to SFINAE because <code>__enable_shared_from_this_base</code> is not accessible. There is a comment above this function <code>// Found by ADL when this is an associated class.</code> - I don&rsquo;t know the reason for sure but it seems like a plausible explanation. It does elude in the docs that public inheritance is a requirement but it&rsquo;s a shame there is a way to use it incorrectly!</p>
+
+    </div>
+    <div class="post-footer">
+      
+    </div>
+  </article>
+
+    </main>
+  </body>
+</html>
