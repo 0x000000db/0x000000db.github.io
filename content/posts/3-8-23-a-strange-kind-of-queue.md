@@ -1,6 +1,6 @@
 ---
 title: "Atomic ring buffer experiment"
-date: 2023-08-3T16:08:17+01:00
+date: 2023-08-03T16:08:17+01:00
 draft: false
 slug: atomic-ring-buffer-experiment
 --- 

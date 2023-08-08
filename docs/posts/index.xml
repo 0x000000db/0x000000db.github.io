@@ -6,7 +6,16 @@
     <description>Recent content in Posts on Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 28 Jul 2023 16:08:17 +0100</lastBuildDate><atom:link href="https://0x000000db.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 03 Aug 2023 16:08:17 +0100</lastBuildDate><atom:link href="https://0x000000db.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Atomic ring buffer experiment</title>
+      <link>https://0x000000db.github.io/posts/atomic-ring-buffer-experiment/</link>
+      <pubDate>Thu, 03 Aug 2023 16:08:17 +0100</pubDate>
+      
+      <guid>https://0x000000db.github.io/posts/atomic-ring-buffer-experiment/</guid>
+      <description>Introduction Inspired by the LMAX Disruptor, I decided to have a go at writing a fast ring buffer. For the purposes of this post I only used 1 producer and 1 consumer but it would work with multiple threads (with some caveats, discussed later). The interface to this queue is a blocking push and pop operation, internally there is a cell for each pre-allocated ring buffer element and a head and tail pointer.</description>
+    </item>
+    
     <item>
       <title>Crash when using `shared_from_this` when not declared public inheritance</title>
       <link>https://0x000000db.github.io/posts/why-does-shared-from-this-crash-with-private-inheritance/</link>
@@ -23,15 +32,6 @@
       
       <guid>https://0x000000db.github.io/posts/why-does-shared-ptr-sometimes-lock/</guid>
       <description>Introduction In this post I want to explore why std::shared_ptr sometimes uses a mutex instead of using atomic instructions. I discovered this a while back when implementing a lazy resource cache for a game, which essentially stored a table of weak_ptr references to already loaded data from disk, encouraging sharing of memory and not an expensive load from disk again. However when it came to profiling I noticed that weak_ptr::lock had climbed to the top with a mutex lock, why would this be?</description>
-    </item>
-    
-    <item>
-      <title>Atomic ring buffer experiment</title>
-      <link>https://0x000000db.github.io/posts/atomic-ring-buffer-experiment/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://0x000000db.github.io/posts/atomic-ring-buffer-experiment/</guid>
-      <description>Introduction Inspired by the LMAX Disruptor, I decided to have a go at writing a fast ring buffer. For the purposes of this post I only used 1 producer and 1 consumer but it would work with multiple threads (with some caveats, discussed later). The interface to this queue is a blocking push and pop operation, internally there is a cell for each pre-allocated ring buffer element and a head and tail pointer.</description>
     </item>
     
   </channel>
