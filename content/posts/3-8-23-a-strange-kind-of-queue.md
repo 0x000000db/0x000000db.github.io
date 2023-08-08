@@ -1,8 +1,8 @@
 ---
-title: "A ring buffer ?"
+title: "Atomic ring buffer experiment"
 date: 2023-08-3T16:08:17+01:00
-draft: true
-slug: how-fast-can-a-ring-buffer-go
+draft: false
+slug: atomic-ring-buffer-experiment
 --- 
 # Introduction
 Inspired by the [LMAX Disruptor](https://lmax-exchange.github.io/disruptor/disruptor.html), I decided to have a go at writing a fast ring buffer. For the purposes of this post I only used 1 producer and 1 consumer but it would work with multiple threads (with some caveats, discussed later). The interface to this queue is a blocking `push` and `pop` operation, internally there is a cell for each pre-allocated ring buffer element and a head and tail pointer. 
